@@ -1,31 +1,43 @@
 # ACX — Agent Context Exchange
 
-Experimental, local-first specification and CLI for portable AI-agent context. **Draft v0.1.0; not an established standard.**
+Experimental, local-first context format and CLI for AI agents. **Draft v0.1 schema; v0.2 migration prototype. Not an adopted standard.**
 
-## Goals
+## Features
 
-- Validate structured context and provenance.
-- Select instructions deterministically by task and path.
-- Detect duplicate IDs and conflicting scoped instructions.
-- Produce auditable context packets for agent adapters.
+- JSON Schema validation and duplicate-ID detection
+- Deterministic task/path selection, expiry filtering and instruction-key conflict detection
+- Lossless Markdown import (single instruction entry)
+- Codex plain-text context export
 
 ## Quick start
 
+Requires [Bun](https://bun.sh/).
+
 ```bash
 bun install
+bun run check
 bun test
-bun run cli validate examples/project.acx.json
+bun run cli import examples/AGENTS.md --out project.acx.json
+bun run cli validate project.acx.json
+bun run cli export project.acx.json --target codex --out CODEX_CONTEXT.md
 bun run cli resolve examples/project.acx.json --task coding --file src/main.ts
 ```
 
-## Layout
+The generated `CODEX_CONTEXT.md` is a context artifact, **not an automatically installed Codex configuration**. Feed it to your agent through an approved workflow; do not elevate repository content above host instructions.
 
-- `spec/RFC-0001.md` — draft semantics and threat model
-- `spec/schema.json` — JSON Schema
-- `src/core.ts` — deterministic validation and resolution
-- `src/cli.ts` — minimal CLI
-- `examples/` — sample context
+## Design
 
-ACX does not grant permissions or execute tools. Adapters must respect their host's instruction hierarchy and security controls. Markdown import and agent-specific adapters are future milestones.
+- `spec/RFC-0001.md`: draft semantics and security model
+- `spec/schema.json`: v0.1 document schema
+- `src/core.ts`: resolver
+- `src/import-markdown.ts`: lossless importer
+- `src/adapter-codex.ts`: text renderer
+- `src/cli.ts`: command-line interface
 
-Contributions welcome; see CONTRIBUTING.md.
+## Limitations
+
+Markdown import does not parse headings into independent rules. Provenance is descriptive, not cryptographically verified. There is no semantic retrieval, remote registry or permission engine. CI results must be checked separately.
+
+## License
+
+MIT.
