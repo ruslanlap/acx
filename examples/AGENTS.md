@@ -1,0 +1,1 @@
+# Example agent instructions\n\n- Use TypeScript strict mode.\n- Run tests before submitting changes.\n
