@@ -1,0 +1,36 @@
+name: Publish alpha release
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  prerelease:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          persist-credentials: true
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.0'
+      - run: bun install
+      - run: bun run check
+      - run: bun test
+      - run: bun run cli validate examples/project.acx.json
+      - name: Verify version
+        run: |
+          test "$(bun -p "require('./package.json').version")" = "0.2.0-alpha.1"
+      - name: Publish GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v0.2.0-alpha.1 >/dev/null 2>&1; then
+            echo "Release already exists; refusing to overwrite."
+            exit 1
+          fi
+          gh release create v0.2.0-alpha.1 \
+            --target "$(git rev-parse HEAD)" \
+            --title "ACX v0.2.0-alpha.1" \
+            --notes-file docs/RELEASE_NOTES.md \
+            --prerelease
