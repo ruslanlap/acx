@@ -1,0 +1,35 @@
+{
+  "acx_version": "0.1.0",
+  "id": "example-project",
+  "kind": "context",
+  "entries": [
+    {
+      "id": "strict-ts",
+      "kind": "instruction",
+      "key": "typescript-mode",
+      "content": "Use strict TypeScript.",
+      "scope": {
+        "tasks": [
+          "coding",
+          "refactoring"
+        ],
+        "paths": [
+          "src/**/*.ts"
+        ]
+      },
+      "source": {
+        "type": "repository",
+        "path": "AGENTS.md"
+      }
+    },
+    {
+      "id": "runtime",
+      "kind": "memory",
+      "content": "The project uses Bun.",
+      "source": {
+        "type": "file",
+        "path": "package.json"
+      }
+    }
+  ]
+}
