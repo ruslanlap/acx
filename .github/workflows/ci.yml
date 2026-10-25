@@ -1,0 +1,19 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.0'
+      - run: bun install
+      - run: bun run check
+      - run: bun test
+      - run: bun run cli validate examples/project.acx.json
+      - run: bun run cli resolve examples/project.acx.json --task coding --file src/main.ts
