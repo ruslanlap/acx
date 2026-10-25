@@ -1,0 +1,52 @@
+{
+  "acx_version": "0.1.0",
+  "id": "example-monorepo",
+  "kind": "context",
+  "entries": [
+    {
+      "id": "shared",
+      "kind": "instruction",
+      "content": "Run tests before submitting changes.",
+      "source": {
+        "type": "file",
+        "path": "AGENTS.md"
+      }
+    },
+    {
+      "id": "terraform",
+      "kind": "instruction",
+      "key": "infra-style",
+      "content": "Use terraform fmt and validate before infrastructure changes.",
+      "scope": {
+        "tasks": [
+          "coding"
+        ],
+        "paths": [
+          "infra/**/*.tf"
+        ]
+      },
+      "source": {
+        "type": "file",
+        "path": "infra/AGENTS.md"
+      }
+    },
+    {
+      "id": "react",
+      "kind": "instruction",
+      "key": "frontend-style",
+      "content": "Use TypeScript strict mode and functional React components.",
+      "scope": {
+        "tasks": [
+          "coding"
+        ],
+        "paths": [
+          "web/**/*.tsx"
+        ]
+      },
+      "source": {
+        "type": "file",
+        "path": "web/AGENTS.md"
+      }
+    }
+  ]
+}
