@@ -1,0 +1,16 @@
+{
+  "name": "@acx/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "cli": "bun src/cli.ts",
+    "test": "bun test",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0",
+    "typescript": "^5.9.0",
+    "ajv": "^8.17.1"
+  }
+}
