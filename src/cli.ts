@@ -1,13 +1,51 @@
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { resolve, validate } from "./core";
+import { importMarkdown } from "./import-markdown";
+import { renderCodex } from "./adapter-codex";
+
 const [command, file, ...args] = process.argv.slice(2);
-function flag(name: string): string | undefined { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; }
-if (!["validate", "resolve"].includes(command ?? "") || !file) {
-  console.error("Usage: bun src/cli.ts <validate|resolve> <file> [--task coding] [--file src/main.ts] [--now ISO_TIMESTAMP]");
+function flag(name: string): string | undefined {
+  const i = args.indexOf(name);
+  return i >= 0 ? args[i + 1] : undefined;
+}
+function files(): string[] {
+  return args.flatMap((v, i) => v === "--file" && args[i + 1] ? [args[i + 1]] : []);
+}
+function usage(): never {
+  console.error("Usage: acx <validate|resolve|import|export> <input> [--task coding] [--file src/main.ts] [--out output] [--target codex] [--now ISO]");
   process.exit(2);
 }
+if (!command || !file || !["validate", "resolve", "import", "export"].includes(command)) usage();
+
 try {
-  const input: unknown = JSON.parse(await readFile(file, "utf8"));
-  if (command === "validate") { validate(input); console.log("ACX valid"); }
-  else console.log(JSON.stringify(resolve(input, { task: flag("--task") ?? "coding", files: args.flatMap((v,i) => v === "--file" && args[i+1] ? [args[i+1]] : []), now: flag("--now") }), null, 2));
-} catch (e) { console.error(e instanceof Error ? e.message : String(e)); process.exit(1); }
+  if (command === "import") {
+    const markdown = await readFile(file, "utf8");
+    const doc = importMarkdown(markdown, file);
+    validate(doc);
+    const output = JSON.stringify(doc, null, 2) + "\n";
+    if (flag("--out")) await writeFile(flag("--out")!, output);
+    else process.stdout.write(output);
+  } else {
+    const input: unknown = JSON.parse(await readFile(file, "utf8"));
+    if (command === "validate") {
+      validate(input);
+      console.log("ACX valid");
+    } else {
+      const packet = resolve(input, {
+        task: flag("--task") ?? "coding",
+        files: files(),
+        now: flag("--now")
+      });
+      if (command === "resolve") console.log(JSON.stringify(packet, null, 2));
+      else {
+        if (flag("--target") !== "codex") throw new Error("Only --target codex is supported");
+        const output = renderCodex(packet);
+        if (flag("--out")) await writeFile(flag("--out")!, output);
+        else process.stdout.write(output);
+      }
+    }
+  }
+} catch (error) {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exit(1);
+}
