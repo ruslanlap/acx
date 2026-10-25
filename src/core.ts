@@ -19,9 +19,27 @@ export function validate(input: unknown): asserts input is Document {
 }
 
 function globMatches(glob: string, path: string): boolean {
-  const escaped = glob.replace(/[.+^${}()|[\]\\]/g, "\\$&");
-  const pattern = escaped.replace(/\*\*\//g, "\u0001").replace(/\*\*/g, "\u0002").replace(/\*/g, "[^/]*").replace(/\u0001/g, "(?:.*/)?").replace(/\u0002/g, ".*").replace(/\?/g, "[^/]");
-  return new RegExp("^" + pattern + "$").test(path);
+  // Compile globs character-by-character to preserve **/ semantics.
+  let pattern = "^";
+  for (let i = 0; i < glob.length; i++) {
+    const char = glob[i];
+    if (char === "*" && glob[i + 1] === "*") {
+      if (glob[i + 2] === "/") {
+        pattern += "(?:.*/)?";
+        i += 2;
+      } else {
+        pattern += ".*";
+        i++;
+      }
+    } else if (char === "*") {
+      pattern += "[^/]*";
+    } else if (char === "?") {
+      pattern += "[^/]";
+    } else {
+      pattern += /[.\\+^$\{\}()|\[\]]/.test(char) ? "\\" + char : char;
+    }
+  }
+  return new RegExp(pattern + "$").test(path);
 }
 
 export function resolve(input: unknown, options: { task: string; files: string[]; now?: string }): Packet {
