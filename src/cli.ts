@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve, validate } from "./core";
-import { importMarkdown } from "./import-markdown";
+import { importMarkdown, importMarkdownSections } from "./import-markdown";
 import { renderCodex } from "./adapter-codex";
 
 const [command, file, ...args] = process.argv.slice(2);
@@ -20,7 +20,7 @@ if (!command || !file || !["validate", "resolve", "import", "export"].includes(c
 try {
   if (command === "import") {
     const markdown = await readFile(file, "utf8");
-    const doc = importMarkdown(markdown, file);
+    const doc = flag("--sections") === undefined && !args.includes("--sections") ? importMarkdown(markdown, file) : importMarkdownSections(markdown, file);
     validate(doc);
     const output = JSON.stringify(doc, null, 2) + "\n";
     if (flag("--out")) await writeFile(flag("--out")!, output);
