@@ -1,10 +1,10 @@
-import Ajv from "ajv";
+import Ajv2020 from "ajv/dist/2020.js";
 import schema from "../spec/schema.json";
 
 export type Entry = { id: string; kind: "instruction" | "memory" | "skill"; key?: string; content: string; scope?: { tasks?: string[]; paths?: string[] }; source?: { type: string; path?: string }; expires_at?: string | null };
 export type Document = { acx_version: "0.1.0"; id: string; kind: "context"; entries: Entry[] };
 export type Packet = { acx_version: string; context_id: string; entries: Entry[] };
-const ajv = new Ajv({ allErrors: true, strict: false, validateFormats: false });
+const ajv = new Ajv2020({ allErrors: true, strict: false, validateFormats: false });
 const validateSchema = ajv.compile(schema);
 
 export function validate(input: unknown): asserts input is Document {
