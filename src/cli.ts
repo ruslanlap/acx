@@ -20,7 +20,7 @@ if (!command || !file || !["validate", "resolve", "import", "export"].includes(c
 try {
   if (command === "import") {
     const markdown = await readFile(file, "utf8");
-    const doc = flag("--sections") === undefined && !args.includes("--sections") ? importMarkdown(markdown, file) : importMarkdownSections(markdown, file);
+    const doc = args.includes("--sections") ? importMarkdownSections(markdown, file) : importMarkdown(markdown, file);
     validate(doc);
     const output = JSON.stringify(doc, null, 2) + "\n";
     if (flag("--out")) await writeFile(flag("--out")!, output);
